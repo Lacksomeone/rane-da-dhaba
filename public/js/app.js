@@ -195,19 +195,39 @@ function toggleMobileMenu() {
 // ============== AUTH / LOGIN ==============
 function updateAuthUI() {
   const authArea = document.getElementById('navAuthArea');
+  const mobileAuthArea = document.getElementById('mobileAuthArea');
+
   if (authToken) {
     let displayStr = authName || (authEmail ? authEmail.split('@')[0] : (authPhone ? `***${authPhone.slice(-4)}` : 'User'));
     if (displayStr.length > 12) displayStr = displayStr.substring(0, 10) + '...';
 
-    authArea.innerHTML = `
+    const userHtml = `
       <div class="nav-user-info">
         <div class="nav-user-avatar">👤</div>
         <span title="${authEmail || authPhone}">${displayStr}</span>
         <button class="nav-login-btn" onclick="logout()" style="background: rgba(229,57,53,0.15); color: #E53935; box-shadow: none; padding: 8px 16px; font-size: 0.8rem;">Logout</button>
       </div>
     `;
+
+    const mobileHtml = `
+      <div style="padding: 20px; border-top: 1px solid var(--border-subtle); margin-top: 10px; text-align: center;">
+        <div class="nav-user-avatar" style="margin: 0 auto 12px; width: 60px; height: 60px; font-size: 1.5rem;">👤</div>
+        <div style="color: var(--gold); font-weight: 600; margin-bottom: 4px;">${displayStr}</div>
+        <div style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 20px;">${authEmail || authPhone}</div>
+        <button class="mobile-auth-btn" onclick="logout()" style="background: rgba(229,57,53,0.1); color: #E53935; border: 1px solid rgba(229,57,53,0.2);">Logout</button>
+      </div>
+    `;
+
+    authArea.innerHTML = userHtml;
+    if (mobileAuthArea) mobileAuthArea.innerHTML = mobileHtml;
+
   } else {
     authArea.innerHTML = `<button class="nav-login-btn" id="loginOpenBtn" onclick="openLoginModal()">Login</button>`;
+    if (mobileAuthArea) {
+      mobileAuthArea.innerHTML = `
+        <button class="mobile-auth-btn" onclick="openLoginModal()" style="background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--bg-dark);">Login / Sign Up</button>
+      `;
+    }
   }
 }
 

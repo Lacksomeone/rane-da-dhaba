@@ -157,6 +157,14 @@ input, textarea, select {
   text-transform: uppercase;
 }
 
+/* Hide auth info in main navbar on mobile */
+@media (max-width: 900px) {
+  .nav-user-info, 
+  #loginOpenBtn {
+    display: none !important;
+  }
+}
+
 .nav-links {
   display: flex;
   align-items: center;
@@ -292,33 +300,77 @@ input, textarea, select {
   transition: all var(--transition-fast);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .nav-container {
+    padding: 0 16px;
+  }
+  .nav-logo-text {
+    font-size: 1.1rem;
+  }
+  .nav-logo-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
   .nav-links {
     position: fixed;
-    top: 72px;
+    top: 0;
     left: 0;
     right: 0;
+    bottom: 0;
+    height: 100vh;
     background: rgba(13, 13, 13, 0.98);
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     flex-direction: column;
-    padding: 16px;
-    gap: 4px;
-    transform: translateY(-120%);
+    justify-content: center;
+    padding: 40px;
+    gap: 12px;
+    transform: translateX(100%);
     transition: transform var(--transition-smooth);
-    border-bottom: 1px solid var(--border-subtle);
+    border: none;
+    z-index: 1001;
   }
   .nav-links.open {
-    transform: translateY(0);
+    transform: translateX(0);
   }
   .nav-links a {
-    padding: 14px 20px;
+    padding: 16px;
     width: 100%;
     text-align: center;
-    font-size: 1rem;
+    font-size: 1.2rem;
+    border-bottom: 1px solid var(--border-subtle);
   }
   .nav-hamburger {
     display: flex;
+    z-index: 1002;
   }
+  .nav-actions {
+    gap: 8px;
+  }
+}
+
+/* Mobile Auth Area inside menu */
+.mobile-auth-links {
+  margin-top: 32px;
+  width: 100%;
+  padding: 0 20px;
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .mobile-auth-links {
+    display: block;
+  }
+}
+
+.mobile-auth-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  text-align: center;
+  margin-top: 12px;
 }
 
 /* ============== HERO SECTION ============== */
@@ -415,6 +467,23 @@ input, textarea, select {
   margin: 0 auto 36px;
   line-height: 1.7;
   animation: heroFadeIn 1.2s ease-out 0.4s both;
+}
+
+@media (max-width: 600px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+  .hero p {
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+  }
+  .hero-stats {
+    gap: 24px;
+    margin-top: 40px;
+  }
+  .hero-stat-value {
+    font-size: 1.5rem;
+  }
 }
 
 .hero-actions {
@@ -678,8 +747,20 @@ input, textarea, select {
 
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 480px) {
+  .menu-grid {
+    grid-template-columns: 1fr;
+  }
+  .section {
+    padding: 60px 16px;
+  }
+  .section-title {
+    font-size: 1.8rem;
+  }
 }
 
 .menu-card {
@@ -1027,6 +1108,20 @@ input, textarea, select {
 
 .modal-overlay.open .login-modal {
   transform: scale(1) translateY(0);
+}
+
+@media (max-width: 480px) {
+  .login-modal {
+    padding: 32px 20px;
+  }
+  .login-modal h2 {
+    font-size: 1.5rem;
+  }
+  .otp-digit {
+    width: 42px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
 }
 
 .login-modal-icon {
