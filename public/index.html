@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Rane Da Dhaba - Authentic North Indian & Mughlai cuisine in Bahraich, UP. Famous for Lucknow-style taste, butter chicken, biryani, kebabs. Order online or dine-in.">
+  <meta name="keywords" content="Rane Da Dhaba, Bahraich, North Indian food, Mughlai, Butter Chicken, Biryani, Kebabs, Restaurant">
+  <title>Rane Da Dhaba — Authentic Mughlai & North Indian Cuisine | Bahraich</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍗</text></svg>">
+</head>
+<body>
+
+  <!-- ============== NAVBAR ============== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="nav-logo" onclick="navigateTo('home')">
+        <div class="nav-logo-icon">🍗</div>
+        <div class="nav-logo-text">
+          Rane Da Dhaba
+          <span>Since Bahraich • Est.</span>
+        </div>
+      </div>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home" class="active" data-page="home" onclick="navigateTo('home')">Home</a></li>
+        <li><a href="#about" data-page="about" onclick="navigateTo('about')">About</a></li>
+        <li><a href="#menu" data-page="menu" onclick="navigateTo('menu')">Menu</a></li>
+        <li><a href="#orders" data-page="orders" onclick="navigateTo('orders')">Orders</a></li>
+        <li><a href="#contact" data-page="contact" onclick="navigateTo('contact')">Contact</a></li>
+        <li><a href="#feedback" data-page="feedback" onclick="navigateTo('feedback')">Feedback</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="nav-cart-btn" id="cartToggleBtn" onclick="toggleCart()">
+          🛒 <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+        <div id="navAuthArea">
+          <button class="nav-login-btn" id="loginOpenBtn" onclick="openLoginModal()">Login</button>
+        </div>
+        <button class="nav-hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============== LOGIN MODAL ============== -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="login-modal" style="position:relative;">
+      <button class="login-close-btn" onclick="closeLoginModal()">✕</button>
+
+      <!-- Step 1: Login Options -->
+      <div id="loginStep1">
+        <div class="login-modal-icon">👋</div>
+        <h2>Welcome Back!</h2>
+        <p>Sign in to continue</p>
+        <div id="loginMsg1" class="login-message"></div>
+        
+        <button class="login-btn" onclick="signInWithGoogle()" style="background: white; color: #333; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px;">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G" style="width: 18px;">
+          Continue with Google
+        </button>
+
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">— OR —</div>
+
+        <div class="login-input-group">
+          <span class="login-input-prefix">+91</span>
+          <input type="tel" class="login-input" id="phoneInput" maxlength="10" placeholder="Enter 10-digit number" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        </div>
+        <button class="login-btn" id="sendOtpBtn" onclick="sendOTP()">Send SMS OTP →</button>
+      </div>
+
+      <!-- Step 2: OTP Input -->
+      <div id="loginStep2" style="display:none;">
+        <div class="login-modal-icon">🔐</div>
+        <h2>Enter OTP</h2>
+        <p id="otpSentMsg">OTP sent to your email</p>
+        <div id="loginMsg2" class="login-message"></div>
+        <div class="otp-input-group" id="otpInputGroup">
+          <input type="text" class="otp-digit" maxlength="1" oninput="otpAutoFocus(this, 0)">
+          <input type="text" class="otp-digit" maxlength="1" oninput="otpAutoFocus(this, 1)">
+          <input type="text" class="otp-digit" maxlength="1" oninput="otpAutoFocus(this, 2)">
+          <input type="text" class="otp-digit" maxlength="1" oninput="otpAutoFocus(this, 3)">
+          <input type="text" class="otp-digit" maxlength="1" oninput="otpAutoFocus(this, 4)">
+          <input type="text" class="otp-digit" maxlength="1" oninput="otpAutoFocus(this, 5)">
+        </div>
+        <button class="login-btn" id="verifyOtpBtn" onclick="verifyOTP()">Verify & Login →</button>
+        <button class="login-back-btn" onclick="showLoginStep(1)">← Back to login options</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== CART SIDEBAR ============== -->
+  <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h2>🛒 Your Cart</h2>
+      <button class="cart-close-btn" onclick="toggleCart()">✕</button>
+    </div>
+    <div class="cart-items" id="cartItemsList">
+      <div class="cart-empty" id="cartEmpty">
+        <div class="cart-empty-icon">🍽️</div>
+        <p>Your cart is empty</p>
+        <p style="font-size:0.8rem; margin-top:8px;">Add delicious items from our menu!</p>
+      </div>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span class="cart-total-label">Total</span>
+        <span class="cart-total-value" id="cartTotalValue">₹0</span>
+      </div>
+      <div class="checkout-form" id="checkoutForm">
+        <div class="form-group">
+          <label>Delivery Address (leave empty for dine-in)</label>
+          <input type="text" class="form-input" id="checkoutAddress" placeholder="e.g. Near Nagar Palika, Bahraich">
+        </div>
+        <div class="form-group">
+          <label>Special Instructions</label>
+          <input type="text" class="form-input" id="checkoutNotes" placeholder="e.g. Extra spicy, no onions">
+        </div>
+      </div>
+      <button class="cart-checkout-btn" id="checkoutBtn" onclick="placeOrder()" disabled>
+        Place Order
+      </button>
+    </div>
+  </div>
+
+  <!-- ============== TOAST CONTAINER ============== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==================== PAGES ==================== -->
+
+  <!-- HOME PAGE -->
+  <div id="page-home" class="page-section active">
+    <section class="hero">
+      <div class="hero-bg">
+        <img src="https://lh3.googleusercontent.com/p/AF1QipMuGGTRFi9-wkBBiFUvCrICp-MYGSA-9DsJgfZz=s1360-w1360-h1020-rw" alt="Rane Da Dhaba Bahraich">
+      </div>
+      <div class="hero-content">
+        <div class="hero-badge">📍 Bahraich, Uttar Pradesh</div>
+        <h1>
+          Taste The Authentic
+          <span class="gold">Lucknow-Style Flavors</span>
+        </h1>
+        <p>Welcome to Rane Da Dhaba — where every bite tells a story of rich Mughlai heritage. Famous for our butter chicken, succulent kebabs, and aromatic biryanis.</p>
+        <div class="hero-actions">
+          <button class="btn-primary" onclick="navigateTo('menu')">🍛 Explore Menu</button>
+          <button class="btn-secondary" onclick="navigateTo('about')">Our Story →</button>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-value">4.2★</div>
+            <div class="hero-stat-label">Google Rating</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value">₹200</div>
+            <div class="hero-stat-label">For Two</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value">29+</div>
+            <div class="hero-stat-label">Menu Items</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Menu Preview -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-tag">Our Specialties</div>
+        <h2 class="section-title">What We're Famous For</h2>
+        <p class="section-subtitle">Hand-picked favourites loved by thousands of Bahraich foodies</p>
+      </div>
+      <div class="menu-grid" id="popularItemsGrid">
+        <!-- Populated by JS -->
+      </div>
+      <div class="text-center mt-32">
+        <button class="btn-primary" onclick="navigateTo('menu')">View Full Menu →</button>
+      </div>
+    </section>
+
+    <!-- Photo Gallery Strip -->
+    <section class="section" style="padding-bottom: 40px;">
+      <div class="section-header">
+        <div class="section-tag">Gallery</div>
+        <h2 class="section-title">Straight From Our Kitchen</h2>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+        <div style="border-radius: 16px; overflow: hidden; aspect-ratio: 4/3; border: 1px solid rgba(212,168,67,0.15);">
+          <img src="https://lh3.googleusercontent.com/p/AF1QipNsQHidKtQCVmvqn_Js8TM0f9HcQlnZkgYAA49E=s1360-w1360-h1020-rw" alt="Rane Da Dhaba Food" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div style="border-radius: 16px; overflow: hidden; aspect-ratio: 4/3; border: 1px solid rgba(212,168,67,0.15);">
+          <img src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqfniGCibdB8sAVN-MrZ_VXRIFgyf1u8F4QUmcLVuh1zeAXACv3bv2H29aUhM73bW64aR-4Iy97TNZN7RxrM705FPRe72q89N2C9KFXfsTj--FeTd3m0RH5KCbOjmsDNh0U00PF=s1360-w1360-h1020-rw" alt="Mughlai Cuisine" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div style="border-radius: 16px; overflow: hidden; aspect-ratio: 4/3; border: 1px solid rgba(212,168,67,0.15);">
+          <img src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweoOWNnI6BpeuJ2xGxwQwtSg85K7P2cRn4z3P7vnM7et-zQXd-XV9kf30cUP8cdfWJxccS3LWUBVI3aKoSqNqIr9UtdCFwASmNhW-dDWhDMzVJ2BSudGQE8F80Byllm4tZ7nqbk=s1360-w1360-h1020-rw" alt="Delicious Food" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px;">
+        <div style="border-radius: 16px; overflow: hidden; aspect-ratio: 4/3; border: 1px solid rgba(212,168,67,0.15);">
+          <img src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweoDOovt9m3OnHAXv1iIJspbDfJGWxj9ixYNRz75Poc4SHg5AWvnxH-4KEpwL9tdug3wbcIxtzztu--CVEEED-vePZglC0njnFm-K00juFFSAr9BE7MAjSEm8mmMOnydgxOoqvcbKQ=s1360-w1360-h1020-rw" alt="Restaurant View" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div style="border-radius: 16px; overflow: hidden; aspect-ratio: 4/3; border: 1px solid rgba(212,168,67,0.15);">
+          <img src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweowdP2c1i2_MeNE0CmMLcJfg_CCMo1MCqtTjVfy4uECdBj7x9n8_7eW8dvHFibe2KZsMRpKXYTC-6zCNMz7EXbp_8Du3Sok__C76inmj91etmacRS5mhP8qDt3wbKsUF2Y2_6HryQ=s1360-w1360-h1020-rw" alt="Dhaba Ambiance" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div style="border-radius: 16px; overflow: hidden; aspect-ratio: 4/3; border: 1px solid rgba(212,168,67,0.15);">
+          <img src="https://lh3.googleusercontent.com/p/AF1QipMuGGTRFi9-wkBBiFUvCrICp-MYGSA-9DsJgfZz=s1360-w1360-h1020-rw" alt="Rane Da Dhaba" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ABOUT PAGE -->
+  <div id="page-about" class="page-section">
+    <div style="height: 72px;"></div>
+    <section class="section">
+      <div class="section-header">
+        <div class="section-tag">Our Story</div>
+        <h1 class="section-title">About Rane Da Dhaba</h1>
+        <p class="section-subtitle">A humble dhaba with the bold flavors of Lucknow, right in the heart of Bahraich</p>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-image">
+          <img src="https://lh3.googleusercontent.com/p/AF1QipNsQHidKtQCVmvqn_Js8TM0f9HcQlnZkgYAA49E=s1360-w1360-h1020-rw" alt="Rane Da Dhaba Restaurant">
+        </div>
+        <div class="about-text">
+          <h3>Where Taste Meets Tradition</h3>
+          <p>Located at Shop No. 7-8, Near Nagar Palika Market on Kachehry Road in Brahmnipura, Bahraich — <strong>Rane Da Dhaba</strong> has become the go-to spot for anyone craving authentic North Indian and Mughlai non-vegetarian cuisine.</p>
+          <p>Our recipes are inspired by the legendary culinary traditions of Lucknow. Every dish is slow-cooked with hand-ground spices, fresh ingredients, and a generous dose of love. From our signature Butter Chicken to the aromatic Mutton Biryani, each plate is a journey through the royal kitchens of Awadh.</p>
+          <p>We believe great food doesn't need a fancy setting — just honest cooking and fresh ingredients. That's the Dhaba way. 🍗</p>
+
+          <div class="about-features">
+            <div class="about-feature">
+              <div class="about-feature-icon">🕐</div>
+              <h4>Open Daily</h4>
+              <p>12:30 PM – 11:00 PM<br>(Closed on Tuesdays)</p>
+            </div>
+            <div class="about-feature">
+              <div class="about-feature-icon">💰</div>
+              <h4>Affordable</h4>
+              <p>₹200 – ₹400 for two people</p>
+            </div>
+            <div class="about-feature">
+              <div class="about-feature-icon">🏪</div>
+              <h4>Casual Dining</h4>
+              <p>Open-air dhaba style seating</p>
+            </div>
+            <div class="about-feature">
+              <div class="about-feature-icon">🛵</div>
+              <h4>Delivery</h4>
+              <p>Zomato, Swiggy & takeaway</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- More photos -->
+      <div style="margin-top: 64px;">
+        <h3 style="font-family: var(--font-display); font-size: 1.5rem; color: var(--gold); text-align:center; margin-bottom: 32px;">Our Ambiance & Kitchen</h3>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+          <div style="border-radius: 16px; overflow: hidden; aspect-ratio: 4/3; border: 1px solid rgba(212,168,67,0.15);">
+            <img src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweoDOovt9m3OnHAXv1iIJspbDfJGWxj9ixYNRz75Poc4SHg5AWvnxH-4KEpwL9tdug3wbcIxtzztu--CVEEED-vePZglC0njnFm-K00juFFSAr9BE7MAjSEm8mmMOnydgxOoqvcbKQ=s1360-w1360-h1020-rw" alt="Kitchen" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+          <div style="border-radius: 16px; overflow: hidden; aspect-ratio: 4/3; border: 1px solid rgba(212,168,67,0.15);">
+            <img src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweowdP2c1i2_MeNE0CmMLcJfg_CCMo1MCqtTjVfy4uECdBj7x9n8_7eW8dvHFibe2KZsMRpKXYTC-6zCNMz7EXbp_8Du3Sok__C76inmj91etmacRS5mhP8qDt3wbKsUF2Y2_6HryQ=s1360-w1360-h1020-rw" alt="Food Prep" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+          <div style="border-radius: 16px; overflow: hidden; aspect-ratio: 4/3; border: 1px solid rgba(212,168,67,0.15);">
+            <img src="https://lh3.googleusercontent.com/gps-cs-s/AHVAweqfniGCibdB8sAVN-MrZ_VXRIFgyf1u8F4QUmcLVuh1zeAXACv3bv2H29aUhM73bW64aR-4Iy97TNZN7RxrM705FPRe72q89N2C9KFXfsTj--FeTd3m0RH5KCbOjmsDNh0U00PF=s1360-w1360-h1020-rw" alt="Ambiance" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- MENU PAGE -->
+  <div id="page-menu" class="page-section">
+    <div style="height: 72px;"></div>
+    <section class="section">
+      <div class="section-header">
+        <div class="section-tag">Our Menu</div>
+        <h1 class="section-title">Explore Our Dishes</h1>
+        <p class="section-subtitle">Authentic Mughlai & North Indian delicacies, prepared with love</p>
+      </div>
+      <div class="menu-categories" id="menuCategories">
+        <!-- Populated by JS -->
+      </div>
+      <div class="menu-grid" id="menuGrid">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+  </div>
+
+  <!-- ORDERS PAGE -->
+  <div id="page-orders" class="page-section">
+    <div style="height: 72px;"></div>
+    <section class="section">
+      <div class="section-header">
+        <div class="section-tag">Your Orders</div>
+        <h1 class="section-title">Order History</h1>
+        <p class="section-subtitle">Track your recent and past orders</p>
+      </div>
+      <div class="orders-list" id="ordersListContainer">
+        <div class="text-center" style="padding: 60px 20px; color: var(--text-muted);">
+          <div style="font-size: 3rem; margin-bottom: 16px;">📦</div>
+          <p>No orders yet.</p>
+          <p style="font-size: 0.85rem; margin-top: 8px;">
+            <span id="ordersLoginPrompt">Please <a href="#" onclick="openLoginModal(); return false;" style="color: var(--gold);">login</a> to see your orders</span>
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- CONTACT PAGE -->
+  <div id="page-contact" class="page-section">
+    <div style="height: 72px;"></div>
+    <section class="section">
+      <div class="section-header">
+        <div class="section-tag">Get In Touch</div>
+        <h1 class="section-title">Contact Us</h1>
+        <p class="section-subtitle">We'd love to hear from you! Visit us or call ahead.</p>
+      </div>
+
+      <div class="contact-grid">
+        <div class="contact-info-cards">
+          <div class="contact-card">
+            <div class="contact-card-icon">📍</div>
+            <div>
+              <h4>Our Location</h4>
+              <p>Shop No. 7-8, Near Nagar Palika Market,<br>Kachehry Road, Brahmnipura,<br>Bahraich – 271801, Uttar Pradesh</p>
+            </div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-card-icon">📞</div>
+            <div>
+              <h4>Call Us</h4>
+              <p><a href="tel:+918896026085" style="color: var(--gold);">+91 88960 26085</a></p>
+              <p>Call ahead for takeaway orders!</p>
+            </div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-card-icon">🕐</div>
+            <div>
+              <h4>Operating Hours</h4>
+              <p>Monday – Sunday: 12:30 PM – 11:00 PM<br><span style="color: var(--red-light);">Closed on Tuesdays</span></p>
+            </div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-card-icon">🛵</div>
+            <div>
+              <h4>Online Ordering</h4>
+              <p>Also available on Zomato & Swiggy.<br>Dine-in, Takeaway & Delivery.</p>
+            </div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-card-icon">💰</div>
+            <div>
+              <h4>Price Range</h4>
+              <p>Approx. ₹200 – ₹400 for two people.<br>Great food, fair prices!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-map">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3544.5!2d81.5959!3d27.5705!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x399a087d1c0a77f3%3A0xa6dd0a1234567890!2sBahraich%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1700000000000"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Rane Da Dhaba Location Map">
+          </iframe>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- FEEDBACK PAGE -->
+  <div id="page-feedback" class="page-section">
+    <div style="height: 72px;"></div>
+    <section class="section">
+      <div class="section-header">
+        <div class="section-tag">Your Voice Matters</div>
+        <h1 class="section-title">Customer Feedback</h1>
+        <p class="section-subtitle">Share your experience and help us serve you better</p>
+      </div>
+
+      <div class="feedback-container">
+        <div class="feedback-form-card">
+          <h3>Leave a Review</h3>
+          <p>Tell us how your experience was!</p>
+
+          <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" class="form-input" id="feedbackName" placeholder="Enter your name">
+          </div>
+          <div class="form-group">
+            <label>Phone Number (optional)</label>
+            <input type="tel" class="form-input" id="feedbackPhone" placeholder="10-digit mobile number" maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+          </div>
+          <div class="form-group">
+            <label>Your Rating</label>
+            <div class="star-rating" id="starRating">
+              <button onclick="setRating(1)" data-star="1">☆</button>
+              <button onclick="setRating(2)" data-star="2">☆</button>
+              <button onclick="setRating(3)" data-star="3">☆</button>
+              <button onclick="setRating(4)" data-star="4">☆</button>
+              <button onclick="setRating(5)" data-star="5">☆</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Your Review</label>
+            <textarea class="form-input" id="feedbackComment" placeholder="What did you love? What can we improve?"></textarea>
+          </div>
+          <button class="feedback-submit-btn" onclick="submitFeedback()">Submit Feedback 🙏</button>
+        </div>
+
+        <div>
+          <h3 style="font-family: var(--font-display); font-size: 1.5rem; color: var(--gold); margin-bottom: 24px;">Recent Reviews</h3>
+          <div class="feedback-reviews" id="feedbackReviews">
+            <!-- Populated by JS -->
+            <div class="text-center" style="padding: 40px 20px; color: var(--text-muted);">
+              <p>No reviews yet. Be the first! ✨</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============== FOOTER ============== -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h3>🍗 Rane Da Dhaba</h3>
+        <p>Authentic Mughlai & North Indian cuisine in the heart of Bahraich. Known for our Lucknow-style taste, generous portions, and affordable prices. Come hungry, leave happy!</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <a href="#home" onclick="navigateTo('home')">Home</a>
+        <a href="#menu" onclick="navigateTo('menu')">Menu</a>
+        <a href="#about" onclick="navigateTo('about')">About Us</a>
+        <a href="#contact" onclick="navigateTo('contact')">Contact</a>
+        <a href="#feedback" onclick="navigateTo('feedback')">Feedback</a>
+      </div>
+      <div class="footer-col">
+        <h4>Popular Dishes</h4>
+        <a href="#menu" onclick="navigateTo('menu')">Butter Chicken</a>
+        <a href="#menu" onclick="navigateTo('menu')">Mutton Biryani</a>
+        <a href="#menu" onclick="navigateTo('menu')">Chicken Tikka</a>
+        <a href="#menu" onclick="navigateTo('menu')">Seekh Kebab</a>
+        <a href="#menu" onclick="navigateTo('menu')">Rumali Roti</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <a href="tel:+918896026085">📞 +91 88960 26085</a>
+        <a href="#contact" onclick="navigateTo('contact')">📍 Bahraich, UP</a>
+        <a href="#contact" onclick="navigateTo('contact')">🕐 12:30 PM – 11 PM</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Rane Da Dhaba, Bahraich. All rights reserved.</p>
+      <div class="footer-socials">
+        <a href="#" title="Instagram">📷</a>
+        <a href="#" title="Facebook">📘</a>
+        <a href="#" title="WhatsApp">💬</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase SDK and reCAPTCHA container -->
+  <div id="recaptcha-container"></div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  
+  <!-- App scripts -->
+  <script src="/js/app.js?v=hybrid_auth"></script>
+</html>
