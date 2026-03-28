@@ -197,6 +197,8 @@ function updateAuthUI() {
   const authArea = document.getElementById('navAuthArea');
   const mobileAuthArea = document.getElementById('mobileAuthArea');
 
+  const heroLoginBtn = document.getElementById('heroLoginBtn');
+
   if (authToken) {
     let displayStr = authName || (authEmail ? authEmail.split('@')[0] : (authPhone ? `***${authPhone.slice(-4)}` : 'User'));
     if (displayStr.length > 12) displayStr = displayStr.substring(0, 10) + '...';
@@ -220,6 +222,7 @@ function updateAuthUI() {
 
     authArea.innerHTML = userHtml;
     if (mobileAuthArea) mobileAuthArea.innerHTML = mobileHtml;
+    if (heroLoginBtn) heroLoginBtn.style.display = 'none';
 
   } else {
     authArea.innerHTML = `<button class="nav-login-btn" id="loginOpenBtn" onclick="openLoginModal()">Login</button>`;
@@ -228,6 +231,7 @@ function updateAuthUI() {
         <button class="mobile-auth-btn" onclick="openLoginModal()" style="background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--bg-dark);">Login / Sign Up</button>
       `;
     }
+    if (heroLoginBtn) heroLoginBtn.style.display = 'inline-flex';
   }
 }
 

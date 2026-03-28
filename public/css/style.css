@@ -393,8 +393,20 @@ input, textarea, select {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 15%;
+  object-position: center 5%;
   filter: brightness(0.3) saturate(1.2);
+}
+
+@media (max-width: 600px) {
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  .hero-actions button {
+    width: 100%;
+  }
 }
 
 .hero-bg::after {
