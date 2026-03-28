@@ -13,6 +13,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// --- Security Headers for Firebase Auth ---
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  next();
+});
+
 // ============== FIREBASE ADMIN SETUP ==============
 let firebaseAdmin = null;
 
@@ -140,6 +146,14 @@ app.get('/api/config', (req, res) => {
     };
   }
   res.json(config);
+});
+
+app.get('/api/verify-session', (req, res) => {
+  const token = req.headers['authorization']?.replace('Bearer ', '');
+  if (token && sessions[token]) {
+    return res.json({ success: true, user: sessions[token] });
+  }
+  res.status(401).json({ success: false, error: 'Session expired' });
 });
 
 // --- Firebase Login Endpoint ---

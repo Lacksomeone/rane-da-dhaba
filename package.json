@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Rane Da Dhaba - Restaurant Website with OTP Login, Ordering & Feedback",
   "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"

@@ -25,6 +25,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateAuthUI();
   updateCartUI();
   handleHashNav();
+  checkSession(); // Verify existing session on boot
+  
+  // Listen for Firebase Auth changes to sync with backend
+  if (window.firebase) {
+    window.firebase.auth().onAuthStateChanged(async (user) => {
+      if (user && !authToken) {
+        console.log("🔄 User detected in Firebase, syncing with backend...");
+        await syncWithBackend(user);
+      }
+    });
+  }
 
   window.addEventListener('scroll', () => {
     const navbar = document.getElementById('navbar');
@@ -52,6 +63,58 @@ async function loadConfig() {
   } catch (err) {
     console.error('Failed to load config:', err);
     otpProvider = 'demo';
+  }
+}
+
+// Verify if the current token is still valid on the server
+async function checkSession() {
+  if (!authToken) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/verify-session`, {
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    });
+    if (!res.ok) {
+      console.warn("⚠️ Session expired on server.");
+      // If we expired, let onAuthStateChanged try to fix it, or clear local state
+      if (!window.firebase?.auth().currentUser) {
+        logout(true); // Silent logout
+      }
+    } else {
+      const data = await res.json();
+      authName = data.user.name;
+      authEmail = data.user.email;
+      authPhone = data.user.phone;
+      updateAuthUI();
+    }
+  } catch (err) {
+    console.error("Session check failed", err);
+  }
+}
+
+// Bridge Firebase Auth user to our server session
+async function syncWithBackend(user) {
+  try {
+    const idToken = await user.getIdToken();
+    const res = await fetch(`${API_BASE}/api/firebase-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        idToken,
+        email: user.email,
+        phone: user.phoneNumber,
+        displayName: user.displayName,
+        uid: user.uid
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      authToken = data.token;
+      localStorage.setItem('rdd_token', authToken);
+      updateAuthUI();
+      console.log("✅ Session re-synced successfully!");
+    }
+  } catch (err) {
+    console.error("Failed to sync with backend", err);
   }
 }
 
@@ -439,21 +502,26 @@ function otpAutoFocus(input, index) {
   }
 }
 
-async function logout() {
-  try {
-    await fetch(`${API_BASE}/api/logout`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
-    if (firebaseAuth) await firebaseAuth.signOut();
-  } catch (e) {}
+function logout(silent = false) {
+  if (!silent) {
+    try {
+      fetch(`${API_BASE}/api/logout`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      if (firebaseAuth) firebaseAuth.signOut();
+    } catch (e) {}
+  }
   authToken = null;
   authPhone = null;
   authEmail = null;
   authName = null;
-  localStorage.clear(); // Simply clear it all
+  localStorage.removeItem('rdd_token');
+  localStorage.removeItem('rdd_phone');
+  localStorage.removeItem('rdd_email');
+  localStorage.removeItem('rdd_name');
   updateAuthUI();
-  showToast('👋 Logged out successfully', 'success');
+  if (!silent) showToast('👋 Logged out successfully', 'success');
 }
 
 // ============== MENU ==============
@@ -639,11 +707,19 @@ async function placeOrder() {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
       body: JSON.stringify({ items: cart, address: document.getElementById('checkoutAddress').value, notes: document.getElementById('checkoutNotes').value })
     });
+    
+    if (res.status === 401) {
+      showToast('⚠️ Session expired. Please login again.', 'error');
+      logout(true);
+      openLoginModal();
+      btn.disabled = false; btn.textContent = 'Place Order';
+      return;
+    }
+
     const data = await res.json();
     if (data.success) {
       showToast('✅ Order placed successfully!', 'success');
       
-      // Send WhatsApp message to owner
       const address = document.getElementById('checkoutAddress').value || 'Dine-in';
       const notes = document.getElementById('checkoutNotes').value;
       const total = cart.reduce((s, c) => s + (c.price * c.qty), 0);
@@ -656,13 +732,22 @@ async function placeOrder() {
       cart = []; saveCart(); updateCartUI(); toggleCart();
       setTimeout(() => navigateTo('orders'), 100);
 
-      // Redirect directly to bypass popup blockers
-      setTimeout(() => {
+      // Try WhatsApp redirect
+      try {
+        const waUrl = `https://wa.me/${phoneToUse}?text=${encodeURIComponent(text)}`;
+        const win = window.open(waUrl, '_blank');
+        if (!win || win.closed || typeof win.closed == 'undefined') {
+          // If popup is blocked, try direct location change
+          window.location.href = waUrl;
+        }
+      } catch (e) {
         window.location.href = `https://wa.me/${phoneToUse}?text=${encodeURIComponent(text)}`;
-      }, 500);
+      }
 
     } else showToast(`❌ ${data.error}`, 'error');
-  } catch (err) {}
+  } catch (err) {
+    showToast('❌ Connection error. Try again.', 'error');
+  }
   
   btn.disabled = false; btn.textContent = 'Place Order';
 }
